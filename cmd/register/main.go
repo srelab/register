@@ -23,13 +23,12 @@ func main() {
 		Before: func(c *cli.Context) error {
 			fmt.Fprintf(c.App.Writer, util.StripIndent(
 				`
-            #####  ######  ####  #  ####  ##### ###### #####
-			#    # #      #    # # #        #   #      #    #
-			#    # #####  #      #  ####    #   #####  #    #
-			#####  #      #  ### #      #   #   #      #####
-			#   #  #      #    # # #    #   #   #      #   #
-			#    # ######  ####  #  ####    #   ###### #    #
-
+				#####  ######  ####  #  ####  ##### ###### #####
+				#    # #      #    # # #        #   #      #    #
+				#    # #####  #      #  ####    #   #####  #    #
+				#####  #      #  ### #      #   #   #      #####
+				#   #  #      #    # # #    #   #   #      #   #
+				#    # ######  ####  #  ####    #   ###### #    #
 			`))
 			return nil
 		},
@@ -61,6 +60,8 @@ func main() {
 					&cli.StringFlag{Name: "gateway.port", Usage: "gateway server port"},
 					&cli.StringFlag{Name: "consul.host", Usage: "consul server host"},
 					&cli.StringFlag{Name: "consul.port", Usage: "consul server port"},
+					&cli.StringFlag{Name: "privilege.host", Usage: "privilege server host"},
+					&cli.StringFlag{Name: "privilege.port", Usage: "privilege server port"},
 				},
 			},
 		},
