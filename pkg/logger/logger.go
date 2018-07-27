@@ -5,9 +5,9 @@ import (
 	"os"
 
 	"fmt"
+	"github.com/natefinch/lumberjack"
 	"github.com/srelab/common/log"
 	"github.com/srelab/register/pkg/g"
-	"github.com/natefinch/lumberjack"
 	"path"
 	"strings"
 )
@@ -77,7 +77,7 @@ func Fatal(v ...interface{}) {
 func InitLogger() {
 	logger = log.New(g.Config().Name)
 	logger.SetLevel(LevelInfo)
-	logger.SetHeader("[${level}](${prefix}) ${time_rfc3339} [${short_file}#${line}]: ")
+	logger.SetHeader("[${level}][${prefix}][${time_rfc3339][${short_file}#]${line}: ")
 	logger.SetOutput(GetLogWriter(fmt.Sprintf("%s.log", g.Config().Name)))
 }
 

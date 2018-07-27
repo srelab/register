@@ -24,14 +24,20 @@ type GatewayConfig struct {
 	Port string
 }
 
+type PrivilegeConfig struct {
+	Host string
+	Port string
+}
+
 type GlobalConfig struct {
 	Name        string
 	Concurrency int
 
-	Log     *LogConfig
-	Consul  *ConsulConfig
-	Docker  *DockerConfig
-	Gateway *GatewayConfig
+	Log       *LogConfig
+	Consul    *ConsulConfig
+	Docker    *DockerConfig
+	Gateway   *GatewayConfig
+	Privilege *PrivilegeConfig
 }
 
 var (
@@ -46,25 +52,27 @@ func Config() *GlobalConfig {
 }
 
 func ParseConfig(ctx *cli.Context) {
-	docker := &DockerConfig{
-		Endpoint: ctx.String("docker.endpoint"),
-	}
-
-	log := &LogConfig{
-		Dir:   ctx.String("log.dir"),
-		Level: ctx.String("log.level"),
-	}
-
-	gateway := &GatewayConfig{
-		Host: ctx.String("gateway.host"),
-		Port: ctx.String("gateway.port"),
-	}
-
 	config = &GlobalConfig{
 		Name:        NAME,
 		Concurrency: ctx.Int("concurrency"),
-		Docker:      docker,
-		Log:         log,
-		Gateway:     gateway,
+		Consul: &ConsulConfig{
+			Host: ctx.String("consul.host"),
+			Port: ctx.String("consul.port"),
+		},
+		Docker: &DockerConfig{
+			Endpoint: ctx.String("docker.endpoint"),
+		},
+		Log: &LogConfig{
+			Dir:   ctx.String("log.dir"),
+			Level: ctx.String("log.level"),
+		},
+		Gateway: &GatewayConfig{
+			Host: ctx.String("gateway.host"),
+			Port: ctx.String("gateway.port"),
+		},
+		Privilege: &PrivilegeConfig{
+			Host: ctx.String("privilege.host"),
+			Port: ctx.String("privilege.port"),
+		},
 	}
 }
