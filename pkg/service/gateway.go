@@ -1,20 +1,22 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"github.com/go-resty/resty"
+	"github.com/srelab/register/pkg/g"
 	"net/http"
 	"time"
 )
 
 type Gateway struct {
-	Name string
-	Host string
-	Port int
+	Name string `json:"name"`
+	Host string `json:"host"`
+	Port int    `json:"port"`
 }
 
 func (gateway *Gateway) url(route string) string {
-	u := fmt.Sprintf("http://%s:%d", gateway.Host, gateway.Port)
+	u := fmt.Sprintf("http://%s:%s", g.Config().Gateway.Host, g.Config().Gateway.Port)
 	return u + route
 }
 
@@ -30,6 +32,10 @@ func (gateway *Gateway) Register() error {
 		Post(gateway.url(fmt.Sprintf("/upstreams/%s/register", gateway.Name)))
 
 	if err != nil || resp.StatusCode() != http.StatusOK {
+		if err == nil {
+			err = errors.New(string(resp.Body()))
+		}
+
 		return err
 	}
 
@@ -43,6 +49,10 @@ func (gateway *Gateway) UnRegister() error {
 		Post(gateway.url(fmt.Sprintf("/upstreams/%s/unregister", gateway.Name)))
 
 	if err != nil || resp.StatusCode() != http.StatusOK {
+		if err == nil {
+			err = errors.New(string(resp.Body()))
+		}
+
 		return err
 	}
 

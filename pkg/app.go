@@ -79,8 +79,8 @@ func handle(event *docker.APIEvents, client *docker.Client) error {
 			Port: info["SERVICE_PORT"].(int),
 		}
 
-		logger.Infof("[Event][%s][%s][%s] - try to register for a service",
-			event.Action, gateway.Name, gateway.Port)
+		logger.Infof("[Event][%s][%s][%s][%d] - try to register for a service",
+			event.Action, gateway.Name, gateway.Host, gateway.Port)
 
 		if err := gateway.Register(); err != nil {
 			return fmt.Errorf("failed to register service[%s] to API gateway, because %s", gateway.Name, err)
@@ -88,8 +88,8 @@ func handle(event *docker.APIEvents, client *docker.Client) error {
 
 		consul := &service.Consul{
 			Name:    gateway.Name,
-			Address: g.Config().Consul.Host,
-			Port:    g.Config().Consul.Port,
+			Address: gateway.Host,
+			Port:    gateway.Port,
 		}
 
 		if err := consul.Register(); err != nil {
@@ -107,8 +107,8 @@ func handle(event *docker.APIEvents, client *docker.Client) error {
 			Port: info["SERVICE_PORT"].(int),
 		}
 
-		logger.Infof("[Event][%s][%s][%s] - try to unregister for a service",
-			event.Action, gateway.Name, gateway.Port)
+		logger.Infof("[Event][%s][%s][%s][%d] - try to unregister for a service",
+			event.Action, gateway.Name, gateway.Host, gateway.Port)
 
 		if err := gateway.UnRegister(); err != nil {
 			return fmt.Errorf("failed to unregister service[%s] from API gateway, because %s", gateway.Name, err)
@@ -116,8 +116,8 @@ func handle(event *docker.APIEvents, client *docker.Client) error {
 
 		consul := &service.Consul{
 			Name:    gateway.Name,
-			Address: g.Config().Consul.Host,
-			Port:    g.Config().Consul.Port,
+			Address: gateway.Host,
+			Port:    gateway.Port,
 		}
 
 		if err := consul.UnRegister(); err != nil {
