@@ -29,7 +29,7 @@ func (consul *Consul) id() string {
 	return fmt.Sprintf("%s:%s:%s:%d", hostname, consul.Name, consul.Address, consul.Port)
 }
 
-func (consul *Consul) Register() error {
+func (consul *Consul) Register(eid string) error {
 	client, err := api.NewClient(consul.config())
 	if err != nil {
 		return err
@@ -41,6 +41,23 @@ func (consul *Consul) Register() error {
 		Address:           consul.Address,
 		EnableTagOverride: false,
 		Port:              consul.Port,
+
+		Checks: api.AgentServiceChecks{
+			&api.AgentServiceCheck{
+				Name:     "tcp@" + eid[0:12],
+				TCP:      fmt.Sprintf("%s:%d", consul.Address, consul.Port),
+				Interval: "10s",
+				Timeout:  "3s",
+				DeregisterCriticalServiceAfter: "1m",
+			},
+			&api.AgentServiceCheck{
+				Name:     "ping@" + eid[0:12],
+				Args:     []string{"/welab.co/bin/consul-health", "ping"},
+				Interval: "10s",
+				Timeout:  "3s",
+				DeregisterCriticalServiceAfter: "1m",
+			},
+		},
 	})
 
 	if err != nil {

@@ -8,6 +8,7 @@ import (
 	"github.com/srelab/register/pkg/logger"
 	"github.com/srelab/register/pkg/service"
 	"github.com/srelab/register/pkg/store"
+	"strings"
 )
 
 func Start() error {
@@ -66,6 +67,10 @@ func Start() error {
 }
 
 func handle(event *docker.APIEvents, client *docker.Client) error {
+	if dn, ok := event.Actor.Attributes["name"]; ok && strings.HasPrefix(dn, "k8s_POD_") {
+		return nil
+	}
+
 	switch event.Action {
 	case "start", "unpause":
 		info, err := store.Container.Get(event.ID, client)
@@ -86,14 +91,16 @@ func handle(event *docker.APIEvents, client *docker.Client) error {
 			return fmt.Errorf("failed to register service[%s] to API gateway, because %s", gateway.Name, err)
 		}
 
-		consul := &service.Consul{
-			Name:    gateway.Name,
-			Address: gateway.Host,
-			Port:    gateway.Port,
-		}
+		if g.Config().Consul.Host != "-" && g.Config().Consul.Port != "-" {
+			consul := &service.Consul{
+				Name:    gateway.Name,
+				Address: gateway.Host,
+				Port:    gateway.Port,
+			}
 
-		if err := consul.Register(); err != nil {
-			return fmt.Errorf("failed to register service[%s] to consul, because %s", gateway.Name, err)
+			if err := consul.Register(event.ID); err != nil {
+				return fmt.Errorf("failed to register service[%s] to consul, because %s", gateway.Name, err)
+			}
 		}
 	case "pause", "die":
 		info, err := store.Container.Get(event.ID, client)
@@ -114,14 +121,16 @@ func handle(event *docker.APIEvents, client *docker.Client) error {
 			return fmt.Errorf("failed to unregister service[%s] from API gateway, because %s", gateway.Name, err)
 		}
 
-		consul := &service.Consul{
-			Name:    gateway.Name,
-			Address: gateway.Host,
-			Port:    gateway.Port,
-		}
+		if g.Config().Consul.Host != "-" && g.Config().Consul.Port != "-" {
+			consul := &service.Consul{
+				Name:    gateway.Name,
+				Address: gateway.Host,
+				Port:    gateway.Port,
+			}
 
-		if err := consul.UnRegister(); err != nil {
-			return fmt.Errorf("failed to unregister service[%s] from consul, because %s", gateway.Name, err)
+			if err := consul.UnRegister(); err != nil {
+				return fmt.Errorf("failed to unregister service[%s] from consul, because %s", gateway.Name, err)
+			}
 		}
 	}
 

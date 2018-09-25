@@ -20,7 +20,7 @@ func GetContainerInfo(container *docker.Container) (map[string]interface{}, erro
 		return nil, errors.New("keys and container info not match")
 	}
 
-	info["DOCKER_ADDRESS"] = address(container.NetworkSettings.Networks, container.ID)
+	info["DOCKER_ADDRESS"] = eth0Address(container.ID)
 	return info, nil
 }
 
@@ -51,16 +51,16 @@ func check(info map[string]interface{}) bool {
 	return true
 }
 
-func address(networks map[string]docker.ContainerNetwork, id string) string {
-	for network := range networks {
-		if obj, exists := networks[network]; exists {
-			if obj.IPAddress != "" {
-				return obj.IPAddress
-			}
-
-			continue
-		}
-	}
+func eth0Address(id string) string {
+	//for network := range networks {
+	//	if obj, exists := networks[network]; exists {
+	//		if obj.IPAddress != "" {
+	//			return obj.IPAddress
+	//		}
+	//
+	//		continue
+	//	}
+	//}
 
 	cmd := fmt.Sprintf(`docker exec %s ifconfig eth0 | grep -oP '\d.+(?=  (Bcast:|netmask))'`, id)
 	address, err := CmdOutBytes("/bin/sh", "-c", cmd)
