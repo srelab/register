@@ -48,14 +48,14 @@ func (consul *Consul) Register(eid string) error {
 				TCP:      fmt.Sprintf("%s:%d", consul.Address, consul.Port),
 				Interval: "10s",
 				Timeout:  "3s",
-				DeregisterCriticalServiceAfter: "1m",
+				DeregisterCriticalServiceAfter: "3m",
 			},
 			&api.AgentServiceCheck{
 				Name:     "ping@" + eid[0:12],
 				Args:     []string{"/welab.co/bin/consul-health", "ping"},
 				Interval: "10s",
 				Timeout:  "3s",
-				DeregisterCriticalServiceAfter: "1m",
+				DeregisterCriticalServiceAfter: "3m",
 			},
 		},
 	})
